@@ -6,6 +6,12 @@ export default function UsersDao(db) {
     db.users.find((user) => user.username === username);
   const findUserById = (userId) =>
     db.users.find((user) => user._id === userId);
+  const findUsersForCourse = (courseId) =>
+    db.users.filter((user) =>
+      db.enrollments.some(
+        (enrollment) => enrollment.user === user._id && enrollment.course === courseId,
+      ),
+    );
   const createUser = (user) => {
     const newUser = { ...user, _id: uuidv4() };
     db.users = [...db.users, newUser];
@@ -17,6 +23,7 @@ export default function UsersDao(db) {
     findUserByCredentials,
     findUserByUsername,
     findUserById,
+    findUsersForCourse,
     createUser,
     updateUser,
   };

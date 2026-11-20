@@ -1,6 +1,8 @@
 import UsersDao from "./dao";
+import EnrollmentsDao from "../Enrollments/dao";
 export default function UserRoutes(app, db) {
   const dao = UsersDao(db);
+  const enrollmentsDao = EnrollmentsDao(db);
   const signup = (req, res) => {
     const user = dao.findUserByUsername(req.body.username);
     if (user) {
@@ -43,9 +45,19 @@ export default function UserRoutes(app, db) {
     }
     res.json(updatedUser);
   };
+  const findUsersForCourse = (req, res) => {
+    res.json(dao.findUsersForCourse(req.params.cid));
+  };
+  const createUserForCourse = (req, res) => {
+    const newUser = dao.createUser(req.body);
+    enrollmentsDao.enrollUserInCourse(newUser._id, req.params.cid);
+    res.json(newUser);
+  };
   app.post("/api/users/signup", signup);
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
   app.get("/api/users/profile", profile);
   app.put("/api/users/:userId", updateUser);
+  app.get("/api/courses/:cid/users", findUsersForCourse);
+  app.post("/api/courses/:cid/users", createUserForCourse);
 }
